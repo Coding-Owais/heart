@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>I Love You Fizu - Heart Animation</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #ffe6f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    canvas {
+      background-color: #ffe6f0;
+    }
+
+    #loveText {
+      position: absolute;
+      font-family: 'Arial', sans-serif;
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      color: #ff3366;
+      text-shadow: 0 0 20px rgba(255, 105, 180, 0.7), 0 0 30px rgba(255, 105, 180, 0.8);
+      opacity: 0;
+      animation: fadeInText 3s ease-in-out forwards, colorShift 5s infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes colorShift {
+      0% { color: #ff3366; }
+      25% { color: #ff69b4; }
+      50% { color: #ff1493; }
+      75% { color: #ff4500; }
+      100% { color: #ff6347; }
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="heartCanvas" width="900" height="900"></canvas>
+  <div id="loveText">I Love You Fizu</div>
+
+  <script>
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    const particles = [];
+    const maxParticles = 4000;
+    let totalParticles = 0;
+    let textShown = false;
+
+    const SCALE = 225;
+
+    function isInsideHeart(x, y) {
+      x /= SCALE;
+      y /= SCALE;
+      const t = Math.pow(x * x + y * y - 1, 3) - x * x * y * y * y;
+      return t <= 0;
+    }
+
+    function createParticle() {
+      for (let tries = 0; tries < 100; tries++) {
+        const x = (Math.random() * 2 - 1) * 17 * SCALE;
+        const y = (Math.random() * 2 - 1) * 15 * SCALE;
+        if (isInsideHeart(x, y)) {
+          const px = centerX + x;
+          const py = centerY - y;
+          const color = Math.random() > 0.5 ? "#ff69b4" : "#ff0000";
+          const size = Math.random() * 4 + 1;
+          particles.push({ x: px, y: py, color, size });
+          totalParticles++;
+          break;
+        }
+      }
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, width, height);
+      for (let p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+    }
+
+    function drawText() {
+      ctx.font = "bold 48px Arial";
+      ctx.fillStyle = "#ff3366";
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#ffffff";
+      ctx.shadowBlur = 10;
+      ctx.fillText("I Love You Fizu", centerX, centerY + 310);
+    }
+
+    function animate() {
+      if (totalParticles < maxParticles) {
+        for (let i = 0; i < 20; i++) {
+          createParticle();
+        }
+      } else if (!textShown) {
+        textShown = true;
+        document.getElementById('loveText').style.opacity = 1; // Show the text with animation
+      }
+
+      drawParticles();
+
+      if (textShown) {
+        drawText(); // Draw the text if it's shown
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
